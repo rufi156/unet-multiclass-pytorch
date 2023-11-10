@@ -19,3 +19,6 @@ checkpoints/
 # Tensorboard summaries
 runs/
 events.*
+
+# Generated images and patches
+data/
