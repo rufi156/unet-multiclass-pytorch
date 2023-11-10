@@ -26,7 +26,7 @@ def get_image_names(mode='train'):
 
     file_names = []
     for filename in natsort.natsorted(glob(os.path.join(data_dir, params['image_folder'], '*'))): 
-            file_names.append(filename.split('/')[-1])
+            file_names.append(os.path.basename(filename))
             
     return file_names
 
