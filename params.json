@@ -16,7 +16,7 @@
     },
     "shape_segmentation": {
         "patches_s96": {
-            "path": "checkpoints/patches_s96_b8/CP76.pth",
+            "path": "checkpoints/patches_s96_b16/CP14.pth",
             "n_channels": 3,
             "n_classes": 3,
             "patch_height": 96, 
