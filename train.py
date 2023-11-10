@@ -6,13 +6,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch import optim
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 from model import UNet, make_dataloaders, eval_net_loader, make_checkpoint_dir
 from lib import plot_net_predictions
 
 
-def train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler):
+def train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler,writer):
     
     net.train()
     epoch_loss = 0
@@ -49,7 +49,7 @@ def train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler):
     print(f'Epoch finished ! Loss: {epoch_loss/i:.2f}, lr:{scheduler.get_lr()}')
 
         
-def validate_epoch(epoch,train_loader,val_loader,device):
+def validate_epoch(epoch,train_loader,val_loader,device,writer):
     
     class_iou, mean_iou = eval_net_loader(net, val_loader, 3, device)
     print('Class IoU:', ' '.join(f'{x:.3f}' for x in class_iou), f'  |  Mean IoU: {mean_iou:.3f}') 
@@ -59,7 +59,7 @@ def validate_epoch(epoch,train_loader,val_loader,device):
     return mean_iou
  
 
-def train_net(train_loader, val_loader, net, device, epochs=5, batch_size=1, lr=0.1, save_cp=True):
+def train_net(train_loader, val_loader, net, device, epochs=5, batch_size=1, lr=0.1, save_cp=True, writer):
     
 #     params = {'batch_size': batch_size, 'shuffle': True, 'num_workers': 4}
 #     train_loader, val_loader =  make_dataloaders(dir_data, val_ratio, params)
@@ -87,19 +87,17 @@ def train_net(train_loader, val_loader, net, device, epochs=5, batch_size=1, lr=
     for epoch in range(epochs):
           
         print('Starting epoch {}/{}.'.format(epoch + 1, epochs))
-        train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler)
-        precision = validate_epoch(epoch,train_loader,val_loader,device)
+        train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler,writer)
+        precision = validate_epoch(epoch,train_loader,val_loader,device,writer)
         scheduler.step()
 
         if save_cp and (precision>best_precision):
             state_dict = net.state_dict()
-            if device=="cuda":
+            if device=="cuda" and torch.cuda.device_count() > 1:
                 state_dict = net.module.state_dict()
             torch.save(state_dict, dir_checkpoint+f'CP{epoch + 1}.pth')
             print('Checkpoint {} saved !'.format(epoch + 1))
             best_precision = precision
-    
-    writer.close()
 
     
 def get_args():
@@ -149,7 +147,7 @@ if __name__ == '__main__':
         net = nn.DataParallel(net) 
 
     try:
-        train_net(train_loader, val_loader, net, device, epochs=args.epochs, batch_size=args.batchsize, lr=args.lr)
+        train_net(train_loader, val_loader, net, device, epochs=args.epochs, batch_size=args.batchsize, lr=args.lr, writer)
         
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
@@ -158,3 +156,5 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
+    finally:
+        writer.close()
