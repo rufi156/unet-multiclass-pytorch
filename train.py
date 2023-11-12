@@ -51,7 +51,7 @@ def train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler,writ
         
 def validate_epoch(epoch,train_loader,val_loader,device,writer):
     
-    class_iou, mean_iou = eval_net_loader(net, val_loader, 3, device)
+    class_iou, mean_iou = eval_net_loader(net, val_loader, 10, device)
     print('Class IoU:', ' '.join(f'{x:.3f}' for x in class_iou), f'  |  Mean IoU: {mean_iou:.3f}') 
     # save to summary
     writer.add_scalar('mean_iou', mean_iou, len(train_loader) * (epoch+1))
@@ -59,7 +59,7 @@ def validate_epoch(epoch,train_loader,val_loader,device,writer):
     return mean_iou
  
 
-def train_net(train_loader, val_loader, net, device, epochs=5, batch_size=1, lr=0.1, save_cp=True, writer):
+def train_net(writer, train_loader, val_loader, net, device, epochs=5, batch_size=1, lr=0.1, save_cp=True):
     
 #     params = {'batch_size': batch_size, 'shuffle': True, 'num_workers': 4}
 #     train_loader, val_loader =  make_dataloaders(dir_data, val_ratio, params)
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     val_ratio=0.1
     train_loader, val_loader =  make_dataloaders(dir_data, val_ratio, params)
     
-    net = UNet(n_channels=3, n_classes=3)
+    net = UNet(n_channels=3, n_classes=10)
     net.to(device)
 
     if args.load:
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         net = nn.DataParallel(net) 
 
     try:
-        train_net(train_loader, val_loader, net, device, epochs=args.epochs, batch_size=args.batchsize, lr=args.lr, writer)
+        train_net(writer, train_loader, val_loader, net, device, epochs=args.epochs, batch_size=args.batchsize, lr=args.lr)
         
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')

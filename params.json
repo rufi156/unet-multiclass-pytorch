@@ -1,20 +1,37 @@
 {
     "models_settings":{
-        "resize_width": 256,
+        "resize_width": "None",
         "equalize": "True",
-        "patch_width": 96,
-        "patch_height": 96,
+        "patch_width": 100,
+        "patch_height": 100,
         "label_to_value": {
-            "_background_": 0, 
-            "line": 1, 
-            "ellipse": 2
+            "background": 0, 
+            "building-flooded": 1, 
+            "building-non-flooded": 2,
+            "road-flooded": 3,
+            "road-non-flooded": 4,
+            "water": 5,
+            "tree": 6,
+            "vehicle": 7,
+            "pool": 8,
+            "grass": 9            
         },
-        "train_dir": "../data/images_train",
-        "test_dir": "../data/images_test",
-        "image_folder": "images",
-        "mask_folder": "masks"
+        "train_dir": "../../FloodNet-Supervised_v1.0_resized/train",
+        "test_dir": "../../FloodNet-Supervised_v1.0_resized/val",
+        "image_folder": "-org-img",
+        "mask_folder": "-label-img"
     },
     "shape_segmentation": {
+        "patches_floodnet": {
+            "path": "checkpoints/patches_floodnet_b64/CP1.pth",
+            "n_channels": 3,
+            "n_classes": 10,
+            "patch_height": 100, 
+            "patch_width": 100,
+            "stride_vertical": 50,
+            "stride_horizontal": 50,
+            "description": "unet model trained on size 96 patches"
+        },
         "patches_s96": {
             "path": "checkpoints/patches_s96_b16/CP14.pth",
             "n_channels": 3,

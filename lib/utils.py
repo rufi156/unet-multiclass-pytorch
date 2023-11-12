@@ -4,7 +4,18 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-LABEL_TO_COLOR = {0:[0,0,0], 1:[255,0,0], 2:[0,255,0], 3:[0,0,255]}
+LABEL_TO_COLOR = {
+    0: [0, 0, 0],     # Black (background)
+    1: [255, 0, 0],   # Red (building-flooded)
+    2: [165, 42, 42],  # Brown (building-non-flooded)
+    3: [107, 142, 35], # Dirty Green (road-flooded)
+    4: [128, 128, 128],# Grey (road-non-flooded)
+    5: [0, 255, 255],  # Cyan (water)
+    6: [0, 0, 255],    # Blue (tree)
+    7: [255, 0, 255],  # Magenta (vehicle)
+    8: [255, 255, 0],  # Yellow (pool)
+    9: [0, 128, 0],    # Green (grass)
+}
 
 def make_image_dir(path_dir):
     path = Path(path_dir)

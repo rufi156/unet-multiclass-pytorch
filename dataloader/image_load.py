@@ -25,7 +25,8 @@ def get_image_names(mode='train'):
         data_dir = params['test_dir']
 
     file_names = []
-    for filename in natsort.natsorted(glob(os.path.join(data_dir, params['image_folder'], '*'))): 
+    temp_dir = os.path.join(data_dir, mode + params['image_folder'], '*')
+    for filename in natsort.natsorted(glob(temp_dir)): 
             file_names.append(os.path.basename(filename))
             
     return file_names
@@ -36,15 +37,17 @@ def list_labels(file_names, mode='train'):
         params = json.load(f)
     params = params['models_settings']
 
-    masks = load_masks(file_names,mode=mode)
+    # masks = load_masks(file_names,mode=mode)
     shape_to_label = params['label_to_value']
-    label_to_shape = {v:k for k,v in shape_to_label.items()}
+    # print(shape_to_label)
+    # label_to_shape = {v:k for k,v in shape_to_label.items()}
+    # print(label_to_shape)
     
-    labels = set()
-    for mask in masks:  
-        mask = rgb2mask(mask)
-        labels = labels.union(set([label_to_shape[label] for label in np.unique(mask)]))
-        
+    # labels = set()
+    # for mask in masks:  
+    #     labels = labels.union(set([label_to_shape[label] for label in np.unique(mask)]))
+
+    labels = set(shape_to_label.keys())
     return labels
 
 def get_sizes(image_names, mode='train'):
@@ -63,7 +66,7 @@ def get_sizes(image_names, mode='train'):
     
     for image_name in image_names:
 
-        file_name = os.path.join(data_dir, params['image_folder'],  image_name)
+        file_name = os.path.join(data_dir, mode+params['image_folder'],  image_name)
         image = np.array(Image.open(file_name))
         
         h.append(image.shape[0])
@@ -91,15 +94,15 @@ def load_images(image_names, mode='train'):
     images = []
     for image_name in image_names:
         
-        file_name = os.path.join(data_dir, params['image_folder'],  image_name)
+        file_name = os.path.normpath(os.path.join(data_dir, mode+params['image_folder'],  image_name))
         image = Image.open(file_name)
         
-        if resize_w is not None: 
-            orig_w, orig_h = image.size[:2]
-            resize_h = int(resize_w/orig_w*orig_h)
-            image = np.array(image.resize((resize_w,resize_h), Image.BILINEAR))
+        # if resize_w is not None: 
+        #     orig_w, orig_h = image.size[:2]
+        #     resize_h = int(resize_w/orig_w*orig_h)
+        #     image = np.array(image.resize((resize_w,resize_h), Image.BILINEAR))
             
-        images.append(image)
+        images.append(np.array(image))
         
     return images
 
@@ -118,14 +121,15 @@ def load_masks(image_names, mode='train'):
 
     masks = []
     for image_name in image_names:  
-        image_name = re.sub("Img", "Mask", image_name)
-        file_name = os.path.join(data_dir, params['mask_folder'],  image_name)
+        image_name = re.sub(".jpg", "_lab.png", image_name)
+        file_name = os.path.normpath(os.path.join(data_dir, mode+params['mask_folder'],  image_name))
         mask = Image.open(file_name)
-        if resize_w is not None:
-            orig_w, orig_h = mask.size[:2]
-            resize_h = int(resize_w/orig_w*orig_h)
-            mask = mask.resize((resize_w,resize_h), Image.NEAREST)
-
-        masks.append(np.array(mask))
+        
+        # if resize_w is not None:
+        #     orig_w, orig_h = mask.size[:2]
+        #     resize_h = int(resize_w/orig_w*orig_h)
+        #     mask = mask.resize((resize_w,resize_h), Image.NEAREST)
+        
+        masks.append(mask2rgb(np.array(mask)))
         
     return masks
