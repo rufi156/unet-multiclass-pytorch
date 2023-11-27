@@ -21,11 +21,12 @@ def get_image_names(mode='train'):
 
     if mode=='train':
         data_dir = params['train_dir']
-    if mode=='test':
+    if mode=='val':
         data_dir = params['test_dir']
 
     file_names = []
     temp_dir = os.path.join(data_dir, mode + params['image_folder'], '*')
+    print(temp_dir)
     for filename in natsort.natsorted(glob(temp_dir)): 
             file_names.append(os.path.basename(filename))
             
@@ -58,7 +59,7 @@ def get_sizes(image_names, mode='train'):
 
     if mode=='train':
         data_dir = params['train_dir']
-    if mode=='test':
+    if mode=='val':
         data_dir = params['test_dir']
 
     h = []
@@ -85,7 +86,7 @@ def load_images(image_names, mode='train'):
 
     if mode=='train':
         data_dir = params['train_dir']
-    if mode=='test':
+    if mode=='val':
         data_dir = params['test_dir']
 
     resize_w = params['resize_width']
@@ -114,7 +115,7 @@ def load_masks(image_names, mode='train'):
 
     if mode=='train':
         data_dir = params['train_dir']
-    if mode=='test':
+    if mode=='val':
         data_dir = params['test_dir']
 
     resize_w = params['resize_width']
