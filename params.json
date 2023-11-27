@@ -23,14 +23,14 @@
     },
     "shape_segmentation": {
         "patches_floodnet": {
-            "path": "checkpoints/patches_floodnet_b64/CP1.pth",
+            "path": "checkpoints/patches_floodnet_b32/epoch50_model_20231126_211446.pth",
             "n_channels": 3,
             "n_classes": 10,
             "patch_height": 100, 
             "patch_width": 100,
             "stride_vertical": 50,
             "stride_horizontal": 50,
-            "description": "unet model trained on size 96 patches"
+            "description": "unet model trained on size 100 patches"
         },
         "patches_s96": {
             "path": "checkpoints/patches_s96_b16/CP14.pth",
