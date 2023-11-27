@@ -1,4 +1,4 @@
-import sys
+import sys, datetime
 import os
 from optparse import OptionParser
 import numpy as np
@@ -38,9 +38,9 @@ def train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler,writ
             writer.add_scalar('train_loss_iter', 
                                   loss.item(), 
                                   i + len(train_loader) * epoch)
-            writer.add_figure('predictions vs. actuals',   
-                                  plot_net_predictions(imgs, true_masks, masks_pred, batch_size),    
-                                  global_step = i + len(train_loader) * epoch)
+            # writer.add_figure('predictions vs. actuals',   
+            #                       plot_net_predictions(imgs, true_masks, masks_pred, batch_size),    
+            #                       global_step = i + len(train_loader) * epoch)
 
         optimizer.zero_grad()
         loss.backward()
@@ -88,16 +88,18 @@ def train_net(writer, train_loader, val_loader, net, device, epochs=5, batch_siz
           
         print('Starting epoch {}/{}.'.format(epoch + 1, epochs))
         train_epoch(epoch,train_loader,criterion,optimizer,batch_size,scheduler,writer)
-        precision = validate_epoch(epoch,train_loader,val_loader,device,writer)
+        # precision = validate_epoch(epoch,train_loader,val_loader,device,writer)
         scheduler.step()
 
-        if save_cp and (precision>best_precision):
+        if epoch % 5 == 0:
+        #if save_cp and (precision>best_precision):
             state_dict = net.state_dict()
             if device=="cuda" and torch.cuda.device_count() > 1:
                 state_dict = net.module.state_dict()
-            torch.save(state_dict, dir_checkpoint+f'CP{epoch + 1}.pth')
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            torch.save(state_dict, dir_checkpoint+f'epoch{str(epoch)}_model_{timestamp}.pth')
             print('Checkpoint {} saved !'.format(epoch + 1))
-            best_precision = precision
+            #best_precision = precision
 
     
 def get_args():
